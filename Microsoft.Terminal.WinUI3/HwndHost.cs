@@ -412,11 +412,9 @@ namespace System.Windows.Interop {
 
 				// Set the Win32 position for the child window.
 				//
-				// Note, we can't check the existing position because we use
-				// SWP_ASYNCWINDOWPOS, which means we could have pending position
-				// change requests that haven't been applied yet.  If we need
-				// this functionality (to avoid the extra SetWindowPos calls),
-				// we'll have to track the last RECT we sent Win32 ourselves.
+				// Track the last rectangle sent to Win32 so we can avoid redundant
+				// synchronous SetWindowPos calls. A resize of the terminal renderer
+				// must only run after this position update has completed.
 				//
 				OnWindowPositionChanged(rcClientRTLAdjusted);
 
@@ -742,8 +740,7 @@ namespace System.Windows.Interop {
 						y,
 						width,
 						height,
-						SET_WINDOW_POS_FLAGS.SWP_ASYNCWINDOWPOS
-						| SET_WINDOW_POS_FLAGS.SWP_NOCOPYBITS
+						SET_WINDOW_POS_FLAGS.SWP_NOCOPYBITS
 						| SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE),
 					() => {
 						_hasLastWindowPosition = true;
